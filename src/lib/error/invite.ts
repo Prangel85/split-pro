@@ -2,6 +2,7 @@ export const InviteErrorCode = {
   INVITES_DISABLED: 'INVITES_DISABLED',
   INVITE_RATE_LIMITED: 'INVITE_RATE_LIMITED',
   INVITE_EMAIL_SEND_FAILED: 'INVITE_EMAIL_SEND_FAILED',
+  AUTHENTIK_INVITE_FAILED: 'AUTHENTIK_INVITE_FAILED',
 } as const;
 
 export const isInviteEmailSendFailed = (appErrorCode: unknown): boolean =>
@@ -9,10 +10,15 @@ export const isInviteEmailSendFailed = (appErrorCode: unknown): boolean =>
 
 export const getInviteErrorToastKey = (
   appErrorCode: string | null | undefined,
-): 'errors.invite_email_failed' | 'errors.add_member_failed' =>
-  InviteErrorCode.INVITE_EMAIL_SEND_FAILED === appErrorCode
-    ? 'errors.invite_email_failed'
-    : 'errors.add_member_failed';
+): 'errors.invite_email_failed' | 'errors.authentik_invite_failed' | 'errors.add_member_failed' => {
+  if (InviteErrorCode.INVITE_EMAIL_SEND_FAILED === appErrorCode) {
+    return 'errors.invite_email_failed';
+  }
+  if (InviteErrorCode.AUTHENTIK_INVITE_FAILED === appErrorCode) {
+    return 'errors.authentik_invite_failed';
+  }
+  return 'errors.add_member_failed';
+};
 
 export const getInviteAppErrorCode = (error: unknown): string | undefined => {
   if ('object' !== typeof error || null === error || !('data' in error)) {

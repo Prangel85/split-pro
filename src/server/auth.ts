@@ -216,7 +216,7 @@ function getProviders() {
     );
   }
 
-  if (env.EMAIL_SERVER_HOST) {
+  if (env.EMAIL_SERVER_HOST && !env.DISABLE_EMAIL_LOGIN) {
     providersList.push(
       EmailProvider({
         from: env.FROM_EMAIL,

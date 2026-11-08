@@ -186,7 +186,8 @@
     "expense_deletion_failed": "An unexpected error occurred while deleting the expense.",
     "friend_deletion_failed": "Failed to delete friend",
     "signin_failed": "Sign-in failed. Please try again.",
-    "invite_email_failed": "Failed to send invite email. Check the SMTP configuration."
+    "invite_email_failed": "Failed to send invite email. Check the SMTP configuration.",
+    "authentik_invite_failed": "Could not create the invitation in Authentik. The person was not invited, please try again later."
   },
   "bank_transactions": {
     "choose_bank_provider": "Choose bank provider",

@@ -15,7 +15,8 @@ import { AppError } from '~/server/api/appError';
 import { balanceProcedure, createTRPCRouter, protectedProcedure } from '~/server/api/trpc';
 import { db } from '~/server/db';
 import { deleteAccount } from '~/server/api/services/deleteAccount';
-import { sendFeedbackEmail, sendInviteEmail } from '~/server/mailer';
+import { AuthentikInviteError, sendFriendInvite } from '~/server/authentikInvites';
+import { sendFeedbackEmail } from '~/server/mailer';
 import { SplitwiseGroupSchema, SplitwiseUserSchema } from '~/types';
 
 import {
@@ -147,8 +148,15 @@ export const userRouter = createTRPCRouter({
 
         let sent = false;
         try {
-          sent = await sendInviteEmail(input.email, session.user.name ?? session.user.email ?? '');
+          sent = await sendFriendInvite(input.email, session.user.name ?? session.user.email ?? '');
         } catch (err) {
+          if (err instanceof AuthentikInviteError) {
+            throwInviteError(
+              'INTERNAL_SERVER_ERROR',
+              InviteErrorCode.AUTHENTIK_INVITE_FAILED,
+              err.message,
+            );
+          }
           console.error('Error sending invite email to user', user.id, err);
         }
         if (!sent) {

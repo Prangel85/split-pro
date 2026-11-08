@@ -36,6 +36,14 @@ describe('getInviteErrorToastKey', () => {
     });
   });
 
+  describe('when the code is AUTHENTIK_INVITE_FAILED', () => {
+    it('returns the authentik-invite-failed key', () => {
+      expect(getInviteErrorToastKey(InviteErrorCode.AUTHENTIK_INVITE_FAILED)).toBe(
+        'errors.authentik_invite_failed',
+      );
+    });
+  });
+
   describe('when the code is any other InviteErrorCode value', () => {
     it.each([InviteErrorCode.INVITES_DISABLED, InviteErrorCode.INVITE_RATE_LIMITED])(
       'returns the generic add-member-failed key for %s',
