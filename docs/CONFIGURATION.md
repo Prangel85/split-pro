@@ -67,6 +67,7 @@ At least one provider must be configured. SplitPro does not support username/pas
 - `ENABLE_USER_DISCOVERY`: Default `false`. Show an “Other users” section in the expense participant picker, including hidden friends and users without shared expenses. Excludes yourself and deleted accounts. Enable for private instances where all users may discover each other; this does not add friends to the balance dashboard.
 - `ENABLE_SENDING_INVITES`: Enable email invites (requires SMTP config).
 - `DISABLE_EMAIL_SIGNUP`: Disable email magic-link signup for new users.
+- `DISABLE_EMAIL_LOGIN`: Default `false`. Disable email magic-link/OTP login entirely, even when SMTP is configured (for example only to send invites). Use it when an SSO/OAuth provider must be the only way to sign in: `DISABLE_EMAIL_SIGNUP` alone does not prevent invited users from signing in with a magic link, because inviting someone creates their account.
 - `UPLOAD_MAX_FILE_SIZE_MB`: Maximum receipt upload size in MB. Used by both client-side pre-check and server-side upload limit. This is also the max size target for image compression, so increase it if you see bad resolution/quality. Default: `10`.
 
 ## Optional variables
@@ -128,6 +129,57 @@ Used for magic-link login and invites.
 - `AUTHENTIK_ID`
 - `AUTHENTIK_SECRET`
 - `AUTHENTIK_ISSUER`: Must include the application slug, no trailing slash.
+
+#### Authentik invitations
+
+Optional. When SplitPro uses Authentik as its only login method, friend invites can create the
+access in Authentik instead of relying on email login. It is enabled when `ENABLE_SENDING_INVITES=true`
+and all the variables below are set (SMTP is still required to send the emails). Setting only some
+of them is treated as a configuration error: invites fail instead of falling back to the default ones.
+
+- `AUTHENTIK_URL`: Base URL of Authentik, e.g. `https://auth.example.com` (not the issuer URL).
+- `AUTHENTIK_TOKEN`: API token of a dedicated service account. It is only used server-side and never logged.
+- `AUTHENTIK_GROUP`: Name of the group that grants access to the SplitPro application (exact name, case-sensitive).
+- `AUTHENTIK_ENROLLMENT_FLOW_SLUG`: Slug of an enrollment flow with an Invitation stage.
+- `AUTHENTIK_APP_SLUG`: Slug of the SplitPro application in Authentik. New users are sent to `/application/launch/<slug>/` after enrolling.
+- `AUTHENTIK_INVITE_EXPIRY_DAYS`: Days before an unused invitation expires. Default `7`.
+
+When someone is invited by email, SplitPro looks the address up in Authentik:
+
+| Authentik state                   | What SplitPro does                                               |
+| --------------------------------- | ---------------------------------------------------------------- |
+| User exists, not in the group     | Adds the user to `AUTHENTIK_GROUP` and emails a link to SplitPro |
+| User exists, already in the group | Emails a link to SplitPro                                        |
+| No user with that email           | Creates a single-use invitation and emails the enrollment link   |
+
+In every case the placeholder SplitPro user is created as usual and is linked on the first Authentik
+login through the email address. If Authentik is unreachable or returns an error, the person is not
+invited and the UI shows an error. Combine this with `DISABLE_EMAIL_LOGIN=true` so that the SMTP
+configuration does not enable magic-link login.
+
+Invitations are created as `splitpro-<random>` (visible in _Directory → Invitations_) with these
+custom attributes (`fixed_data`):
+
+```yaml
+email: friend@example.com
+groups_to_add:
+  - SplitPro
+```
+
+The enrollment flow must use them:
+
+- The Invitation stage must have "Continue flow without invitation" disabled.
+- A Prompt stage with a field whose key is `email` is pre-filled with the invited address (make it read-only if users must not change it).
+- `groups_to_add` must be applied by your flow (for example with the expression policy or User Write stage configuration you already use for manual invitations).
+- End the flow with a User Login stage, so that the `next` redirect opens SplitPro directly.
+
+Minimum permissions for the service account (create a service account, a role with these
+permissions, a group with that role containing the service account, then an API token for it):
+
+- `Can add Invitation` (global): create invitations.
+- `Can view User` (global): look users up by email.
+- `Can view Group` and `Can add user to group`: assign them as **object permissions on the SplitPro group only** (_Directory → Groups → SplitPro → Permissions_), not globally.
+- Optional: `Can view Flow`. Without it, invitations are not bound to the enrollment flow and are valid for any flow with an Invitation stage.
 
 #### Keycloak
 

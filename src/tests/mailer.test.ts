@@ -97,6 +97,32 @@ describe('sendInviteEmail', () => {
       const sentHtml = mockSendMail.mock.calls[0]?.[0]?.html;
       expect(sentHtml).toEqual(expect.stringContaining('Alice Smith'));
     });
+
+    it('links to the instance by default', async () => {
+      mockSendMail.mockResolvedValue(mockSentMessageInfo);
+
+      await sendInviteEmail('friend@example.com', 'Alice');
+
+      const sent = mockSendMail.mock.calls[0]?.[0];
+      expect(sent?.text).toEqual(expect.stringContaining('https://splitpro.example.com'));
+      expect(sent?.text).toEqual(expect.stringContaining('sign in to SplitPro'));
+    });
+
+    it('links to the signup URL when one is provided', async () => {
+      mockSendMail.mockResolvedValue(mockSentMessageInfo);
+      const signupUrl = 'https://auth.example.com/if/flow/enroll/?itoken=abc&next=%2Fapp%2F';
+
+      await sendInviteEmail('friend@example.com', 'Alice', signupUrl);
+
+      const sent = mockSendMail.mock.calls[0]?.[0];
+      expect(sent?.text).toEqual(expect.stringContaining(signupUrl));
+      expect(sent?.text).toEqual(expect.stringContaining('create your account'));
+      expect(sent?.html).toEqual(
+        expect.stringContaining(
+          'href="https://auth.example.com/if/flow/enroll/?itoken=abc&amp;next=%2Fapp%2F"',
+        ),
+      );
+    });
   });
 
   describe('when the send fails', () => {
