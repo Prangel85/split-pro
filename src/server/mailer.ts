@@ -3,6 +3,7 @@ import { type Transporter, createTransport } from 'nodemailer';
 import { env } from '~/env';
 import { escapeHtml } from '~/lib/utils';
 
+import { getEmailLocale, getEmailTranslator } from './emailTranslations';
 import { sendToDiscord } from './service-notification';
 
 // oxlint-disable-next-line init-declarations
@@ -56,13 +57,18 @@ export async function sendSignUpEmail(email: string, url: string, token: string)
 }
 
 /**
- * Sends the "you have been invited" email.
+ * Sends the "you have been invited" email, in `locale` (falls back to DEFAULT_LANGUAGE).
  *
  * By default the email links to the SplitPro instance. When `signupUrl` is provided (e.g. an
  * identity-provider registration link created by `~/server/authentikInvites`), the email asks the
  * recipient to create their account through that link instead.
  */
-export async function sendInviteEmail(email: string, name: string, signupUrl?: string) {
+export async function sendInviteEmail(
+  email: string,
+  name: string,
+  signupUrl?: string,
+  locale?: string,
+) {
   if (!env.ENABLE_SENDING_INVITES) {
     throw new Error('Sending invites is not enabled');
   }
@@ -75,14 +81,16 @@ export async function sendInviteEmail(email: string, name: string, signupUrl?: s
     return true;
   }
 
-  const action = signupUrl
-    ? 'You can create your account by clicking the below URL'
-    : 'You can sign in to SplitPro by clicking the below URL';
-  const linkLabel = signupUrl ? `Create your account for ${host}` : `Sign in to ${host}`;
+  const t = getEmailTranslator(getEmailLocale(locale));
+  const action = t(signupUrl ? 'emails.invite.create_account' : 'emails.invite.sign_in');
+  const linkLabel = t(
+    signupUrl ? 'emails.invite.create_account_link' : 'emails.invite.sign_in_link',
+    { host },
+  );
 
-  const subject = 'Invitation to SplitPro';
-  const text = `Hey,\n\nYou have been invited to SplitPro by ${name}. It's a completely open source free alternative to splitwise. ${action}:\n${url}\n\nThanks,\nSplitPro Team`;
-  const html = `<p>Hey,</p> <p>You have been invited to SplitPro by ${escapeHtml(name)}. It's a completely open source free alternative to splitwise. ${action}:</p><p><a href="${escapeHtml(url)}">${escapeHtml(linkLabel)}</a></p><br><p>Thanks,<br/>SplitPro Team</p>`;
+  const subject = t('emails.invite.subject');
+  const text = `${t('emails.invite.greeting')}\n\n${t('emails.invite.invited_by', { name })} ${action}\n${url}\n\n${t('emails.invite.thanks')}\n${t('emails.invite.signature')}`;
+  const html = `<p>${escapeHtml(t('emails.invite.greeting'))}</p> <p>${escapeHtml(t('emails.invite.invited_by', { name }))} ${escapeHtml(action)}</p><p><a href="${escapeHtml(url)}">${escapeHtml(linkLabel)}</a></p><br><p>${escapeHtml(t('emails.invite.thanks'))}<br/>${escapeHtml(t('emails.invite.signature'))}</p>`;
 
   return await sendMail(email, subject, text, html);
 }

@@ -108,6 +108,37 @@ describe('sendInviteEmail', () => {
       expect(sent?.text).toEqual(expect.stringContaining('sign in to SplitPro'));
     });
 
+    it('uses the recipient language when it is supported', async () => {
+      mockSendMail.mockResolvedValue(mockSentMessageInfo);
+
+      await sendInviteEmail('friend@example.com', 'Alice', undefined, 'it');
+
+      const sent = mockSendMail.mock.calls[0]?.[0];
+      expect(sent?.subject).toBe('Invito a SplitPro');
+      expect(sent?.text).toEqual(expect.stringContaining('Alice ti ha invitato su SplitPro'));
+      expect(sent?.html).toEqual(expect.stringContaining('Accedi a splitpro.example.com'));
+    });
+
+    it('uses DEFAULT_LANGUAGE when the recipient has no supported language', async () => {
+      mockSendMail.mockResolvedValue(mockSentMessageInfo);
+      (env as { DEFAULT_LANGUAGE?: string }).DEFAULT_LANGUAGE = 'it';
+
+      await sendInviteEmail('friend@example.com', 'Alice', 'https://auth.example.com/x', '');
+
+      const sent = mockSendMail.mock.calls[0]?.[0];
+      expect(sent?.subject).toBe('Invito a SplitPro');
+      expect(sent?.text).toEqual(expect.stringContaining('Puoi creare il tuo account'));
+      (env as { DEFAULT_LANGUAGE?: string }).DEFAULT_LANGUAGE = undefined;
+    });
+
+    it('falls back to English for unsupported languages', async () => {
+      mockSendMail.mockResolvedValue(mockSentMessageInfo);
+
+      await sendInviteEmail('friend@example.com', 'Alice', undefined, 'xx');
+
+      expect(mockSendMail.mock.calls[0]?.[0]?.subject).toBe('Invitation to SplitPro');
+    });
+
     it('links to the signup URL when one is provided', async () => {
       mockSendMail.mockResolvedValue(mockSentMessageInfo);
       const signupUrl = 'https://auth.example.com/if/flow/enroll/?itoken=abc&next=%2Fapp%2F';

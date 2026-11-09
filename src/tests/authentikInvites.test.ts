@@ -93,7 +93,12 @@ describe('sendFriendInvite', () => {
       const addUser = calls().find((call) => call.key.endsWith('/add_user/'));
       expect(addUser?.body).toEqual({ pk: 42 });
       expect(calls().some((call) => call.key.includes('/invitations/'))).toBe(false);
-      expect(mockSendInviteEmail).toHaveBeenCalledWith('friend@example.com', 'Alice', undefined);
+      expect(mockSendInviteEmail).toHaveBeenCalledWith(
+        'friend@example.com',
+        'Alice',
+        undefined,
+        undefined,
+      );
     });
 
     it('sends the token only in the Authorization header', async () => {
@@ -130,7 +135,12 @@ describe('sendFriendInvite', () => {
         'GET /api/v3/core/users/',
         'GET /api/v3/core/groups/',
       ]);
-      expect(mockSendInviteEmail).toHaveBeenCalledWith('friend@example.com', 'Alice', undefined);
+      expect(mockSendInviteEmail).toHaveBeenCalledWith(
+        'friend@example.com',
+        'Alice',
+        undefined,
+        undefined,
+      );
     });
   });
 
@@ -164,6 +174,18 @@ describe('sendFriendInvite', () => {
       );
       expect(signupUrl.searchParams.get('itoken')).toBe('invite-token');
       expect(signupUrl.searchParams.get('next')).toBe('/application/launch/splitpro/');
+    });
+
+    it('passes the recipient language to the email', async () => {
+      mockAuthentik({
+        'GET /api/v3/core/users/': () => json({ results: [] }),
+        'GET /api/v3/flows/instances/invite-enrollment/': () => json({ pk: 'flow-uuid' }),
+        'POST /api/v3/stages/invitation/invitations/': () => json({ pk: 'invite-token' }, 201),
+      });
+
+      await sendFriendInvite('friend@example.com', 'Alice', 'it');
+
+      expect(mockSendInviteEmail.mock.calls[0]?.[3]).toBe('it');
     });
 
     it('still creates the invitation when the flow cannot be read', async () => {
@@ -242,7 +264,12 @@ describe('sendFriendInvite', () => {
       await expect(sendFriendInvite('friend@example.com', 'Alice')).resolves.toBe(true);
 
       expect(fetchMock).not.toHaveBeenCalled();
-      expect(mockSendInviteEmail).toHaveBeenCalledWith('friend@example.com', 'Alice');
+      expect(mockSendInviteEmail).toHaveBeenCalledWith(
+        'friend@example.com',
+        'Alice',
+        undefined,
+        undefined,
+      );
     });
   });
 });

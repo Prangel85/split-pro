@@ -560,5 +560,18 @@
     "today": "Oggi",
     "total_balance": "Saldo totale",
     "transfer": "{senderRole, select, you {Paghi {receiver}} other {{receiverRole, select, you {{sender} ti paga} other {{sender} paga {receiver}}}}}"
+  },
+  "emails": {
+    "invite": {
+      "subject": "Invito a SplitPro",
+      "greeting": "Ciao,",
+      "invited_by": "{name} ti ha invitato su SplitPro, un'alternativa a Splitwise gratuita e open source.",
+      "sign_in": "Puoi accedere a SplitPro dal link qui sotto:",
+      "create_account": "Puoi creare il tuo account dal link qui sotto:",
+      "sign_in_link": "Accedi a {host}",
+      "create_account_link": "Crea il tuo account per {host}",
+      "thanks": "Grazie,",
+      "signature": "Il team di SplitPro"
+    }
   }
 }

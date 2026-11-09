@@ -255,15 +255,16 @@ export const prepareAuthentikInvite = async (
 /**
  * Sends a friend invitation. Without Authentik configuration this is exactly `sendInviteEmail`.
  *
+ * @param locale preferred language of the recipient, if known (defaults to DEFAULT_LANGUAGE)
  * @returns whether the email was sent (same contract as `sendInviteEmail`)
  * @throws AuthentikInviteError when Authentik is configured but fails
  */
-export const sendFriendInvite = async (email: string, inviterName: string) => {
+export const sendFriendInvite = async (email: string, inviterName: string, locale?: string) => {
   const config = getConfig();
   if (!config) {
-    return sendInviteEmail(email, inviterName);
+    return sendInviteEmail(email, inviterName, undefined, locale);
   }
 
   const { signupUrl } = await prepareAuthentikInvite(config, email);
-  return sendInviteEmail(email, inviterName, signupUrl);
+  return sendInviteEmail(email, inviterName, signupUrl, locale);
 };
