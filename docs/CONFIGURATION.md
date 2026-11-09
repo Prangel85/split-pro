@@ -64,6 +64,7 @@ At least one provider must be configured. SplitPro does not support username/pas
 ### App behavior
 
 - `DEFAULT_HOMEPAGE`: Sets the landing page route, e.g. `/home` or `/balances`.
+- `DEFAULT_LANGUAGE`: Default `en`. Language for visitors without a saved preference or language cookie, e.g. `it`. New users keep it as their preferred language on first sign-in; everyone can still change it in the account settings. Must be one of the supported language codes (`en`, `it`, `de`, `fr`, `pt-BR`, …).
 - `ENABLE_USER_DISCOVERY`: Default `false`. Show an “Other users” section in the expense participant picker, including hidden friends and users without shared expenses. Excludes yourself and deleted accounts. Enable for private instances where all users may discover each other; this does not add friends to the balance dashboard.
 - `ENABLE_SENDING_INVITES`: Enable email invites (requires SMTP config).
 - `DISABLE_EMAIL_SIGNUP`: Disable email magic-link signup for new users.
@@ -178,7 +179,8 @@ permissions, a group with that role containing the service account, then an API 
 
 - `Can add Invitation` (global): create invitations.
 - `Can view User` (global): look users up by email.
-- `Can view Group` and `Can add user to group`: assign them as **object permissions on the SplitPro group only** (_Directory → Groups → SplitPro → Permissions_), not globally.
+- `Can view Group` (global): find the group by name. Listing groups needs the global permission; an object permission on the group is not enough.
+- `Can add user to group`: assign it as an **object permission on the SplitPro group only** (_Directory → Groups → SplitPro → Permissions_), not globally, so the service account can only add people to that group.
 - Optional: `Can view Flow`. Without it, invitations are not bound to the enrollment flow and are valid for any flow with an Invitation stage.
 
 #### Keycloak

@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
+import { env } from '~/env';
+import { getDefaultLocale } from '~/utils/i18n/defaultLocale';
+
 const PUBLIC_FILE = /\.(.*)$/;
 
 export function proxy(req: NextRequest) {
@@ -18,7 +21,7 @@ export function proxy(req: NextRequest) {
   }
 
   if (req.nextUrl.locale === 'default') {
-    const locale = req.cookies.get('NEXT_LOCALE')?.value ?? 'en';
+    const locale = req.cookies.get('NEXT_LOCALE')?.value ?? getDefaultLocale(env.DEFAULT_LANGUAGE);
 
     return NextResponse.redirect(
       new URL(`/${locale}${req.nextUrl.pathname}${req.nextUrl.search}`, req.url),

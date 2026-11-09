@@ -598,5 +598,18 @@
     "edit_label": "Edit comment",
     "delete_confirm": "Delete this comment?",
     "error": "Could not save the comment"
+  },
+  "emails": {
+    "invite": {
+      "subject": "Invitation to SplitPro",
+      "greeting": "Hey,",
+      "invited_by": "You have been invited to SplitPro by {name}. It's a completely open source free alternative to splitwise.",
+      "sign_in": "You can sign in to SplitPro by clicking the below URL:",
+      "create_account": "You can create your account by clicking the below URL:",
+      "sign_in_link": "Sign in to {host}",
+      "create_account_link": "Create your account for {host}",
+      "thanks": "Thanks,",
+      "signature": "SplitPro Team"
+    }
   }
 }

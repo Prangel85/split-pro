@@ -148,7 +148,11 @@ export const userRouter = createTRPCRouter({
 
         let sent = false;
         try {
-          sent = await sendFriendInvite(input.email, session.user.name ?? session.user.email ?? '');
+          sent = await sendFriendInvite(
+            input.email,
+            session.user.name ?? session.user.email ?? '',
+            user.preferredLanguage,
+          );
         } catch (err) {
           if (err instanceof AuthentikInviteError) {
             throwInviteError(
