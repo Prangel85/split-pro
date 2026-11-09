@@ -2,6 +2,7 @@ import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
 import { parseEnvBoolean } from './utils/env';
+import { isSupportedLocale } from './utils/i18n/defaultLocale';
 
 const recurrenceTimeSchema = z
   .string()
@@ -85,6 +86,13 @@ export const env = createEnv({
     FEEDBACK_EMAIL: z.string().optional(),
     DISCORD_WEBHOOK_URL: z.string().optional(),
     DEFAULT_HOMEPAGE: z.string().default('/home'),
+    DEFAULT_LANGUAGE: z
+      .string()
+      .refine(
+        isSupportedLocale,
+        'DEFAULT_LANGUAGE must be a supported language code, e.g. en or it',
+      )
+      .default('en'),
     CURRENCY_RATE_PROVIDER: z
       .enum(['frankfurter', 'openexchangerates', 'nbp'])
       .default('frankfurter'),
@@ -169,6 +177,7 @@ export const env = createEnv({
     FEEDBACK_EMAIL: process.env.FEEDBACK_EMAIL,
     DISCORD_WEBHOOK_URL: process.env.DISCORD_WEBHOOK_URL,
     DEFAULT_HOMEPAGE: process.env.DEFAULT_HOMEPAGE,
+    DEFAULT_LANGUAGE: process.env.DEFAULT_LANGUAGE,
     CURRENCY_RATE_PROVIDER: process.env.CURRENCY_RATE_PROVIDER,
     OPEN_EXCHANGE_RATES_APP_ID: process.env.OPEN_EXCHANGE_RATES_APP_ID,
     OIDC_NAME: process.env.OIDC_NAME,

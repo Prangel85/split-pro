@@ -64,6 +64,7 @@ At least one provider must be configured. SplitPro does not support username/pas
 ### App behavior
 
 - `DEFAULT_HOMEPAGE`: Sets the landing page route, e.g. `/home` or `/balances`.
+- `DEFAULT_LANGUAGE`: Default `en`. Language for visitors without a saved preference or language cookie, e.g. `it`. New users keep it as their preferred language on first sign-in; everyone can still change it in the account settings. Must be one of the supported language codes (`en`, `it`, `de`, `fr`, `pt-BR`, …).
 - `ENABLE_USER_DISCOVERY`: Default `false`. Show an “Other users” section in the expense participant picker, including hidden friends and users without shared expenses. Excludes yourself and deleted accounts. Enable for private instances where all users may discover each other; this does not add friends to the balance dashboard.
 - `ENABLE_SENDING_INVITES`: Enable email invites (requires SMTP config).
 - `DISABLE_EMAIL_SIGNUP`: Disable email magic-link signup for new users.
