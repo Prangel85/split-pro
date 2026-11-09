@@ -178,7 +178,8 @@ permissions, a group with that role containing the service account, then an API 
 
 - `Can add Invitation` (global): create invitations.
 - `Can view User` (global): look users up by email.
-- `Can view Group` and `Can add user to group`: assign them as **object permissions on the SplitPro group only** (_Directory → Groups → SplitPro → Permissions_), not globally.
+- `Can view Group` (global): find the group by name. Listing groups needs the global permission; an object permission on the group is not enough.
+- `Can add user to group`: assign it as an **object permission on the SplitPro group only** (_Directory → Groups → SplitPro → Permissions_), not globally, so the service account can only add people to that group.
 - Optional: `Can view Flow`. Without it, invitations are not bound to the enrollment flow and are valid for any flow with an Invitation stage.
 
 #### Keycloak
